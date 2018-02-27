@@ -7,24 +7,30 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		308B9B042045655B00F39038 /* graphics_context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 308B9B022045655B00F39038 /* graphics_context.cpp */; };
 		30D04CB820446D850075FCBF /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30D04CB720446D850075FCBF /* main.cpp */; };
+		30D04CC120446DC30075FCBF /* vulkan.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 30D04CBF20446DA60075FCBF /* vulkan.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		30D04CB220446D850075FCBF /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 10;
 			files = (
+				30D04CC120446DC30075FCBF /* vulkan.framework in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		308B9B022045655B00F39038 /* graphics_context.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = graphics_context.cpp; sourceTree = "<group>"; };
+		308B9B032045655B00F39038 /* graphics_context.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = graphics_context.hpp; sourceTree = "<group>"; };
 		30D04CB420446D850075FCBF /* Vulkan_test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Vulkan_test; sourceTree = BUILT_PRODUCTS_DIR; };
 		30D04CB720446D850075FCBF /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		30D04CBF20446DA60075FCBF /* vulkan.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vulkan.framework; path = "../../../Downloads/vulkansdk-macos-1.0.69.0/macOS/Frameworks/vulkan.framework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,7 +48,7 @@
 			isa = PBXGroup;
 			children = (
 				30D04CB620446D850075FCBF /* Vulkan_test */,
-				30D04CB520446D850075FCBF /* Products */,
+				30D04CBE20446DA60075FCBF /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -52,14 +58,26 @@
 				30D04CB420446D850075FCBF /* Vulkan_test */,
 			);
 			name = Products;
+			path = ..;
 			sourceTree = "<group>";
 		};
 		30D04CB620446D850075FCBF /* Vulkan_test */ = {
 			isa = PBXGroup;
 			children = (
 				30D04CB720446D850075FCBF /* main.cpp */,
+				308B9B022045655B00F39038 /* graphics_context.cpp */,
+				308B9B032045655B00F39038 /* graphics_context.hpp */,
+				30D04CB520446D850075FCBF /* Products */,
 			);
 			path = Vulkan_test;
+			sourceTree = "<group>";
+		};
+		30D04CBE20446DA60075FCBF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				30D04CBF20446DA60075FCBF /* vulkan.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -119,6 +137,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				308B9B042045655B00F39038 /* graphics_context.cpp in Sources */,
 				30D04CB820446D850075FCBF /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -233,7 +252,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = /usr/local/include;
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				OTHER_LDFLAGS = "-lvulkan";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USE_HEADERMAP = NO;
 			};
 			name = Debug;
 		};
@@ -241,7 +264,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = /usr/local/include;
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				OTHER_LDFLAGS = "-lvulkan";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USE_HEADERMAP = NO;
 			};
 			name = Release;
 		};

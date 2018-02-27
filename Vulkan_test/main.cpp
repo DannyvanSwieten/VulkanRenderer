@@ -8,8 +8,13 @@
 
 #include <iostream>
 
+#include "graphics_context.hpp"
+
 int main(int argc, const char * argv[]) {
-	// insert code here...
-	std::cout << "Hello, World!\n";
+	
+	Instance instance({"VK_LAYER_LUNARG_standard_validation"},{});
+	auto& physicalDevices = instance.getPhysicalDevices();
+	Device device(physicalDevices[0], instance);
+	
 	return 0;
 }
