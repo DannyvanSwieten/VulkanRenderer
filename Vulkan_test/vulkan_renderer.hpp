@@ -42,4 +42,5 @@ private:
 	void* nativeWindowHandle = nullptr;
 	
 	uint32_t graphicsQueueIndex = 0;
+	uint32_t presentQueueIndex = 0;
 };

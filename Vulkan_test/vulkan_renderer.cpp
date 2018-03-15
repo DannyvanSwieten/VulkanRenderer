@@ -98,6 +98,13 @@ void VulkanRenderer::createLogicalDeviceAndPresentQueue() {
 			graphicsQueueIndex = index;
 		}
 		
+		if(surface) {
+			vk::Bool32 presentSupportForSurface = false;
+			physicalDevice.getSurfaceSupportKHR(index, surface, &presentSupportForSurface);
+			if(presentSupportForSurface)
+				presentQueueIndex = index;
+		}
+			
 		index++;
 	}
 	

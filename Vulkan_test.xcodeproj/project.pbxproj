@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		305B853C205A949800DE9F0A /* vulkan_renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 305B853A205A949800DE9F0A /* vulkan_renderer.cpp */; };
 		30D04CB820446D850075FCBF /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30D04CB720446D850075FCBF /* main.cpp */; };
-		30D04CC120446DC30075FCBF /* vulkan.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 30D04CBF20446DA60075FCBF /* vulkan.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -19,7 +18,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				30D04CC120446DC30075FCBF /* vulkan.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
