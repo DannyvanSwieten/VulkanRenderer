@@ -8,64 +8,6 @@
 
 #include "graphics_context.hpp"
 
-Instance::Instance(const std::vector<const char*>& requiredValidationLayers,
-				   const std::vector<const char*>& requiredExtensions) {
-	
-	VkInstanceCreateInfo info = {};
-	info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	info.ppEnabledLayerNames = requiredValidationLayers.data();
-	info.enabledLayerCount = static_cast<uint32_t>(requiredValidationLayers.size());
-	info.ppEnabledExtensionNames = requiredExtensions.data();
-	info.enabledExtensionCount = static_cast<uint32_t>(requiredExtensions.size());
-	
-	VkResult result = vkCreateInstance(&info, NULL, &handle);
-	if(result != VK_SUCCESS)
-		throw std::runtime_error("Failed to create Vulkan instance");
-	
-	enumerateDevices();
-}
-
-std::vector<VkLayerProperties> Instance::getAvailableValidationLayers() {
-	uint32_t instance_layer_count = 0;
-	VkResult result = vkEnumerateInstanceLayerProperties(&instance_layer_count, nullptr);
-	std::vector<VkLayerProperties> validationLayers(instance_layer_count);
-	
-	if (instance_layer_count > 0)
-		result = vkEnumerateInstanceLayerProperties(&instance_layer_count, validationLayers.data());
-	
-	return validationLayers;
-}
-
-std::vector<VkExtensionProperties> Instance::getAvailableExtensions() {
-	uint32_t extension_count = 0;
-	vkEnumerateInstanceExtensionProperties(nullptr, &extension_count, nullptr);
-	std::vector<VkExtensionProperties> extensions(extension_count);
-	vkEnumerateInstanceExtensionProperties(nullptr, &extension_count, extensions.data());
-	return extensions;
-}
-
-void Instance::enumerateDevices() {
-	uint32_t device_count = 0;
-	vkEnumeratePhysicalDevices(handle, &device_count, nullptr);
-	if(device_count) {
-		physicalDevices.resize(device_count);
-		std::vector<VkPhysicalDevice> physical_devices(device_count);
-		vkEnumeratePhysicalDevices(handle, &device_count, physical_devices.data());
-		
-		for(auto i = 0; i < device_count; i++) {
-			const auto device = physical_devices[i];
-			physicalDevices[i].device = device;
-			vkGetPhysicalDeviceProperties(device, &physicalDevices[i].properties);
-			vkGetPhysicalDeviceFeatures(device, &physicalDevices[i].features);
-			
-			uint32_t queue_family_count = 0;
-			vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, nullptr);
-			physicalDevices[i].queueFamilyProperties.resize(queue_family_count);
-			vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, physicalDevices[i].queueFamilyProperties.data());
-		}
-	}
-}
-
 Device::Device(const PhysicalDevice& d, const Instance& instance, const void* nativeWindowHandle):
 physicalDevice(d), instance(instance) {
 	

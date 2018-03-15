@@ -16,10 +16,28 @@
 
 struct PhysicalDevice {
 	
+	Instance& instance;
 	VkPhysicalDevice device;
+	std::vector<VkExtensionProperties> extensions;
 	VkPhysicalDeviceProperties properties;
 	VkPhysicalDeviceFeatures features;
 	std::vector<VkQueueFamilyProperties> queueFamilyProperties;
+	
+	PhysicalDevice(Instance& instance, VkPhysicalDevice d): device(d) {
+		
+		vkGetPhysicalDeviceProperties(device, &properties);
+		vkGetPhysicalDeviceFeatures(device, &features);
+		
+		uint32_t queue_family_count = 0;
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, nullptr);
+		queueFamilyProperties.resize(queue_family_count);
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, queueFamilyProperties.data());
+		
+		uint32_t deviceExtensionCount = 0;
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &deviceExtensionCount, nullptr);
+		extensions.resize(deviceExtensionCount);
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &deviceExtensionCount, extensions.data());
+	}
 	
 	bool supportsComputeQueue() const {
 		for(const auto& family: queueFamilyProperties) {
@@ -41,7 +59,7 @@ struct PhysicalDevice {
 		return false;
 	}
 	
-	bool supportsCopyQueue() const {
+	bool supportsTransferQueue() const {
 		for(const auto& family: queueFamilyProperties) {
 			if(family.queueCount && family.queueFlags & VK_QUEUE_TRANSFER_BIT) {
 				return true;
@@ -50,32 +68,6 @@ struct PhysicalDevice {
 		
 		return false;
 	}
-};
-
-class Instance {
-public:
-	Instance(const std::vector<const char*>& requiredValidationLayers,
-			 const std::vector<const char*>& requiredExtensions);
-	
-	static std::vector<VkLayerProperties> getAvailableValidationLayers();
-	static std::vector<VkExtensionProperties> getAvailableExtensions();
-	
-	const VkInstance getHandle() const {
-		return handle;
-	}
-	
-	const std::vector<PhysicalDevice>& getPhysicalDevices() const {
-		return physicalDevices;
-	}
-	
-private:
-	
-	void enumerateDevices();
-	
-private:
-	
-	VkInstance handle = VK_NULL_HANDLE;
-	std::vector<PhysicalDevice> physicalDevices;
 };
 
 class Device {

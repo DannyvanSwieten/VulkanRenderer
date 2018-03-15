@@ -6,15 +6,11 @@
 //  Copyright © 2018 Danny. All rights reserved.
 //
 
-#include <iostream>
-
-#include "graphics_context.hpp"
+#include "vulkan_renderer.hpp"
 
 int main(int argc, const char * argv[]) {
 	
-	Instance instance({"VK_LAYER_LUNARG_standard_validation"},{});
-	auto& physicalDevices = instance.getPhysicalDevices();
-	Device device(physicalDevices[0], instance);
+	VulkanRenderer renderer;
 	
 	return 0;
 }
