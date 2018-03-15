@@ -32,7 +32,6 @@
 		308B9B032045655B00F39038 /* graphics_context.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = graphics_context.hpp; sourceTree = "<group>"; };
 		30D04CB420446D850075FCBF /* Vulkan_test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Vulkan_test; sourceTree = BUILT_PRODUCTS_DIR; };
 		30D04CB720446D850075FCBF /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		30D04CBF20446DA60075FCBF /* vulkan.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vulkan.framework; path = "../../../Downloads/vulkansdk-macos-1.0.69.0/macOS/Frameworks/vulkan.framework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,7 +80,6 @@
 		30D04CBE20446DA60075FCBF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				30D04CBF20446DA60075FCBF /* vulkan.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
