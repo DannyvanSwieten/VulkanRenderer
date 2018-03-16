@@ -271,7 +271,7 @@ void VulkanRenderer::createSwapChain() {
 	vk::MemoryAllocateInfo memoryInfo;
 	memoryInfo.setAllocationSize(memoryRequirements.size);
 	memoryInfo.setMemoryTypeIndex(memoryProperties.memoryTypes[0].heapIndex);
-	auto depthBufferDeviceMemory = logicalDevice.allocateMemory(memoryInfo);
+	depthBufferDeviceMemory = logicalDevice.allocateMemory(memoryInfo);
 	
 	// Bind it to the depthbuffer
 	logicalDevice.bindImageMemory(depthBuffer, depthBufferDeviceMemory, 0);

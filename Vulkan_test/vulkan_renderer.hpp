@@ -42,6 +42,7 @@ private:
 	std::vector<vk::ImageView> swapChainImageViews;
 	vk::Image depthBuffer;
 	vk::ImageView depthBufferView;
+	vk::DeviceMemory depthBufferDeviceMemory;
 	vk::SurfaceFormatKHR swapChainFormat;
 	vk::PresentModeKHR swapChainPresentMode;
 	
