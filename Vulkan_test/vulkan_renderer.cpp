@@ -17,13 +17,17 @@
 VulkanRenderer::VulkanRenderer(void* nativeWindowHandle): nativeWindowHandle(nativeWindowHandle) {
 	
 	const std::vector<const char* const> validationLayers { "VK_LAYER_LUNARG_standard_validation" };
+	const std::vector<const char* const> requiredExtensions { "VK_KHR_surface", "VK_MVK_macos_surface" };
 	vk::InstanceCreateInfo info;
 	info.setPpEnabledLayerNames(validationLayers.data()).
-	setEnabledLayerCount(static_cast<uint32_t>(validationLayers.size()));
+	setEnabledLayerCount(static_cast<uint32_t>(validationLayers.size())).
+	setPpEnabledExtensionNames(requiredExtensions.data()).
+	setEnabledExtensionCount(static_cast<uint32_t>(requiredExtensions.size()));
 	
 	instance = vk::createInstance(info);
 	chooseBestDevice(instance.enumeratePhysicalDevices());
 	createLogicalDeviceAndPresentQueue();
+	createSwapChain();
 }
 
 void VulkanRenderer::chooseBestDevice(const std::vector<vk::PhysicalDevice>& devices) {
@@ -81,7 +85,7 @@ void VulkanRenderer::createPlatformSpecificSurface() {
 #ifdef __APPLE__
 	vk::MacOSSurfaceCreateInfoMVK surfaceCreateInfo;
 	surfaceCreateInfo.pView = nativeWindowHandle;
-	instance.createMacOSSurfaceMVK(surfaceCreateInfo);
+	surface = instance.createMacOSSurfaceMVK(surfaceCreateInfo);
 #endif
 }
 
@@ -204,6 +208,46 @@ void VulkanRenderer::choosePresentModeForSwapChain() {
 	
 	swapChainPresentMode = mode;
 }
+
+void VulkanRenderer::createSwapChain() { 
+	vk::SwapchainCreateInfoKHR swapChainInfo;
+	swapChainInfo.setSurface(surface);
+	swapChainInfo.setImageFormat(swapChainFormat.format);
+	swapChainInfo.setMinImageCount(surfaceCababilities.minImageCount);
+	swapChainInfo.setImageExtent(surfaceCababilities.currentExtent);
+	swapChainInfo.setPresentMode(swapChainPresentMode);
+	swapChainInfo.setImageSharingMode(vk::SharingMode::eExclusive);
+	swapChainInfo.setImageUsage(vk::ImageUsageFlagBits::eColorAttachment);
+	swapChainInfo.setImageArrayLayers(1);
+	
+	swapChain = logicalDevice.createSwapchainKHR(swapChainInfo);
+	swapChainImages = logicalDevice.getSwapchainImagesKHR(swapChain);
+	
+	for(const auto& image: swapChainImages) {
+		
+		vk::ComponentMapping mapping;
+		mapping.setR(vk::ComponentSwizzle::eB);
+		mapping.setB(vk::ComponentSwizzle::eR);
+		
+		vk::ImageViewCreateInfo viewInfo;
+		viewInfo.setImage(image);
+		viewInfo.setFormat(swapChainFormat.format);
+		viewInfo.setViewType(vk::ImageViewType::e2D);
+		viewInfo.setComponents(mapping);
+		swapChainImageViews.emplace_back(logicalDevice.createImageView(viewInfo));
+	}
+	
+	vk::ImageCreateInfo depthBufferCreateInfo;
+	depthBufferCreateInfo.setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment);
+	depthBufferCreateInfo.setFormat(vk::Format::eD16Unorm);
+	const auto& windowSize = surfaceCababilities.currentExtent;
+	depthBufferCreateInfo.setExtent(vk::Extent3D{windowSize.width, windowSize.height, 1});
+	depthBufferCreateInfo.setMipLevels(1);
+	depthBufferCreateInfo.setSamples(vk::SampleCountFlagBits::e1);
+	depthBufferCreateInfo.setArrayLayers(1);
+	depthBufferCreateInfo.setSharingMode(vk::SharingMode::eExclusive);
+}
+
 
 
 

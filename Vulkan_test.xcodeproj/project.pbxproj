@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		305B853C205A949800DE9F0A /* vulkan_renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 305B853A205A949800DE9F0A /* vulkan_renderer.cpp */; };
+		307A4AF6205BE96A00E14D0C /* window_macos_pimpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 307A4AF4205BE96A00E14D0C /* window_macos_pimpl.mm */; };
+		308C8AFB205BE59D006C650A /* MetalView.m in Sources */ = {isa = PBXBuildFile; fileRef = 308C8AFA205BE59D006C650A /* MetalView.m */; };
 		30D04CB820446D850075FCBF /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30D04CB720446D850075FCBF /* main.cpp */; };
 /* End PBXBuildFile section */
 
@@ -24,12 +26,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		305B8537205A8E9D00DE9F0A /* instance.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = instance.cpp; sourceTree = "<group>"; };
-		305B8538205A8E9D00DE9F0A /* instance.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = instance.hpp; sourceTree = "<group>"; };
 		305B853A205A949800DE9F0A /* vulkan_renderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = vulkan_renderer.cpp; sourceTree = "<group>"; };
 		305B853B205A949800DE9F0A /* vulkan_renderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = vulkan_renderer.hpp; sourceTree = "<group>"; };
-		308B9B022045655B00F39038 /* graphics_context.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = graphics_context.cpp; sourceTree = "<group>"; };
-		308B9B032045655B00F39038 /* graphics_context.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = graphics_context.hpp; sourceTree = "<group>"; };
+		307A4AF4205BE96A00E14D0C /* window_macos_pimpl.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = window_macos_pimpl.mm; sourceTree = "<group>"; };
+		307A4AF5205BE96A00E14D0C /* window.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = window.hpp; sourceTree = "<group>"; };
+		308C8AF9205BE59D006C650A /* MetalView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MetalView.h; sourceTree = "<group>"; };
+		308C8AFA205BE59D006C650A /* MetalView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MetalView.m; sourceTree = "<group>"; };
 		30D04CB420446D850075FCBF /* Vulkan_test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Vulkan_test; sourceTree = BUILT_PRODUCTS_DIR; };
 		30D04CB720446D850075FCBF /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -66,13 +68,13 @@
 			isa = PBXGroup;
 			children = (
 				30D04CB720446D850075FCBF /* main.cpp */,
-				308B9B022045655B00F39038 /* graphics_context.cpp */,
-				308B9B032045655B00F39038 /* graphics_context.hpp */,
 				30D04CB520446D850075FCBF /* Products */,
-				305B8537205A8E9D00DE9F0A /* instance.cpp */,
-				305B8538205A8E9D00DE9F0A /* instance.hpp */,
 				305B853A205A949800DE9F0A /* vulkan_renderer.cpp */,
 				305B853B205A949800DE9F0A /* vulkan_renderer.hpp */,
+				308C8AFA205BE59D006C650A /* MetalView.m */,
+				308C8AF9205BE59D006C650A /* MetalView.h */,
+				307A4AF4205BE96A00E14D0C /* window_macos_pimpl.mm */,
+				307A4AF5205BE96A00E14D0C /* window.hpp */,
 			);
 			path = Vulkan_test;
 			sourceTree = "<group>";
@@ -142,7 +144,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				30D04CB820446D850075FCBF /* main.cpp in Sources */,
+				308C8AFB205BE59D006C650A /* MetalView.m in Sources */,
 				305B853C205A949800DE9F0A /* vulkan_renderer.cpp in Sources */,
+				307A4AF6205BE96A00E14D0C /* window_macos_pimpl.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

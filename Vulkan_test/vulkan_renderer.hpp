@@ -22,6 +22,7 @@ private:
 	void createLogicalDeviceAndPresentQueue();
 	void chooseSurfaceFormatForSwapChain();
 	void choosePresentModeForSwapChain();
+	void createSwapChain();
 	
 private:
 	
@@ -36,6 +37,9 @@ private:
 	std::vector<vk::SurfaceFormatKHR> supportedSurfaceFormats;
 	std::vector<vk::PresentModeKHR> supportedPresentModes;
 	
+	vk::SwapchainKHR swapChain;
+	std::vector<vk::Image> swapChainImages;
+	std::vector<vk::ImageView> swapChainImageViews;
 	vk::SurfaceFormatKHR swapChainFormat;
 	vk::PresentModeKHR swapChainPresentMode;
 	

@@ -7,10 +7,12 @@
 //
 
 #include "vulkan_renderer.hpp"
+#include "window.hpp"
 
 int main(int argc, const char * argv[]) {
 	
-	VulkanRenderer renderer;
+	Window w(800, 600);
+	VulkanRenderer renderer(w.getNativeHandle());
 	
 	return 0;
 }
