@@ -227,11 +227,15 @@ void VulkanRenderer::createSwapChain() {
 	swapChain = logicalDevice.createSwapchainKHR(swapChainInfo);
 	swapChainImages = logicalDevice.getSwapchainImagesKHR(swapChain);
 	
+	// Create image views for all swapchain images
 	for(const auto& image: swapChainImages) {
 		
 		vk::ComponentMapping mapping;
-		mapping.setR(vk::ComponentSwizzle::eB);
-		mapping.setB(vk::ComponentSwizzle::eR);
+		
+		if(swapChainFormat.format == vk::Format::eB8G8R8A8Unorm) {
+			mapping.setR(vk::ComponentSwizzle::eB);
+			mapping.setB(vk::ComponentSwizzle::eR);
+		}
 		
 		vk::ImageSubresourceRange subResource;
 		subResource.setAspectMask(vk::ImageAspectFlagBits::eColor);
@@ -247,15 +251,45 @@ void VulkanRenderer::createSwapChain() {
 		swapChainImageViews.emplace_back(logicalDevice.createImageView(viewInfo));
 	}
 	
+	// Create depthbuffer
 	vk::ImageCreateInfo depthBufferCreateInfo;
 	depthBufferCreateInfo.setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment);
 	depthBufferCreateInfo.setFormat(vk::Format::eD16Unorm);
+	depthBufferCreateInfo.setImageType(vk::ImageType::e2D);
 	const auto& windowSize = surfaceCababilities.currentExtent;
 	depthBufferCreateInfo.setExtent(vk::Extent3D{windowSize.width, windowSize.height, 1});
 	depthBufferCreateInfo.setMipLevels(1);
 	depthBufferCreateInfo.setSamples(vk::SampleCountFlagBits::e1);
 	depthBufferCreateInfo.setArrayLayers(1);
 	depthBufferCreateInfo.setSharingMode(vk::SharingMode::eExclusive);
+	
+	depthBuffer = logicalDevice.createImage(depthBufferCreateInfo);
+	
+	// Allocate devicememory for depthbuffer.
+	auto memoryProperties = physicalDevice.getMemoryProperties();
+	const auto memoryRequirements = logicalDevice.getImageMemoryRequirements(depthBuffer);
+	vk::MemoryAllocateInfo memoryInfo;
+	memoryInfo.setAllocationSize(memoryRequirements.size);
+	memoryInfo.setMemoryTypeIndex(memoryProperties.memoryTypes[0].heapIndex);
+	auto depthBufferDeviceMemory = logicalDevice.allocateMemory(memoryInfo);
+	
+	// Bind it to the depthbuffer
+	logicalDevice.bindImageMemory(depthBuffer, depthBufferDeviceMemory, 0);
+	
+	// Create imageview for depthbuffer
+	vk::ImageSubresourceRange subResource;
+	subResource.setAspectMask(vk::ImageAspectFlagBits::eDepth);
+	subResource.setLevelCount(1);
+	subResource.setLayerCount(1);
+	
+	vk::ImageViewCreateInfo viewInfo;
+	viewInfo.setImage(depthBuffer);
+	viewInfo.setFormat(vk::Format::eD16Unorm);
+	viewInfo.setViewType(vk::ImageViewType::e2D);
+	viewInfo.setComponents(vk::ComponentMapping());
+	viewInfo.setSubresourceRange(subResource);
+
+	depthBufferView = logicalDevice.createImageView(viewInfo);
 }
 
 

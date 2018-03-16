@@ -40,6 +40,8 @@ private:
 	vk::SwapchainKHR swapChain;
 	std::vector<vk::Image> swapChainImages;
 	std::vector<vk::ImageView> swapChainImageViews;
+	vk::Image depthBuffer;
+	vk::ImageView depthBufferView;
 	vk::SurfaceFormatKHR swapChainFormat;
 	vk::PresentModeKHR swapChainPresentMode;
 	
