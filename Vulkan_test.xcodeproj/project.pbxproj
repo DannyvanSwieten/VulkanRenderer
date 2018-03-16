@@ -68,13 +68,13 @@
 			isa = PBXGroup;
 			children = (
 				30D04CB720446D850075FCBF /* main.cpp */,
-				30D04CB520446D850075FCBF /* Products */,
 				305B853A205A949800DE9F0A /* vulkan_renderer.cpp */,
 				305B853B205A949800DE9F0A /* vulkan_renderer.hpp */,
 				308C8AFA205BE59D006C650A /* MetalView.m */,
 				308C8AF9205BE59D006C650A /* MetalView.h */,
 				307A4AF4205BE96A00E14D0C /* window_macos_pimpl.mm */,
 				307A4AF5205BE96A00E14D0C /* window.hpp */,
+				30D04CB520446D850075FCBF /* Products */,
 			);
 			path = Vulkan_test;
 			sourceTree = "<group>";

@@ -17,7 +17,11 @@
 VulkanRenderer::VulkanRenderer(void* nativeWindowHandle): nativeWindowHandle(nativeWindowHandle) {
 	
 	const std::vector<const char* const> validationLayers { "VK_LAYER_LUNARG_standard_validation" };
-	const std::vector<const char* const> requiredExtensions { "VK_KHR_surface", "VK_MVK_macos_surface" };
+	std::vector<const char*> requiredExtensions { "VK_KHR_surface" };
+#ifdef __APPLE__
+	requiredExtensions.emplace_back("VK_MVK_macos_surface");
+#endif
+	
 	vk::InstanceCreateInfo info;
 	info.setPpEnabledLayerNames(validationLayers.data()).
 	setEnabledLayerCount(static_cast<uint32_t>(validationLayers.size())).
@@ -229,11 +233,17 @@ void VulkanRenderer::createSwapChain() {
 		mapping.setR(vk::ComponentSwizzle::eB);
 		mapping.setB(vk::ComponentSwizzle::eR);
 		
+		vk::ImageSubresourceRange subResource;
+		subResource.setAspectMask(vk::ImageAspectFlagBits::eColor);
+		subResource.setLevelCount(1);
+		subResource.setLayerCount(1);
+		
 		vk::ImageViewCreateInfo viewInfo;
 		viewInfo.setImage(image);
 		viewInfo.setFormat(swapChainFormat.format);
 		viewInfo.setViewType(vk::ImageViewType::e2D);
 		viewInfo.setComponents(mapping);
+		viewInfo.setSubresourceRange(subResource);
 		swapChainImageViews.emplace_back(logicalDevice.createImageView(viewInfo));
 	}
 	
