@@ -23,6 +23,8 @@ private:
 	void chooseSurfaceFormatForSwapChain();
 	void choosePresentModeForSwapChain();
 	void createSwapChain();
+	void createCommandPool();
+	void createDescriptorPool();
 	
 private:
 	
@@ -50,4 +52,9 @@ private:
 	
 	uint32_t graphicsQueueIndex = 0;
 	uint32_t presentQueueIndex = 0;
+	
+	vk::CommandPool graphicsCommandPool;
+	std::vector<vk::CommandBuffer> commandBuffers;
+	
+	vk::DescriptorPool descriptorPool;
 };

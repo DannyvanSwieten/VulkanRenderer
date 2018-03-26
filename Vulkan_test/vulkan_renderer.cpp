@@ -32,6 +32,7 @@ VulkanRenderer::VulkanRenderer(void* nativeWindowHandle): nativeWindowHandle(nat
 	chooseBestDevice(instance.enumeratePhysicalDevices());
 	createLogicalDeviceAndPresentQueue();
 	createSwapChain();
+	createCommandPool();
 }
 
 void VulkanRenderer::chooseBestDevice(const std::vector<vk::PhysicalDevice>& devices) {
@@ -291,6 +292,62 @@ void VulkanRenderer::createSwapChain() {
 
 	depthBufferView = logicalDevice.createImageView(viewInfo);
 }
+
+void VulkanRenderer::createCommandPool() { 
+	vk::CommandPoolCreateInfo poolInfo;
+	poolInfo.setQueueFamilyIndex(graphicsQueueIndex);
+	
+	graphicsCommandPool = logicalDevice.createCommandPool(poolInfo);
+	
+	vk::CommandBufferAllocateInfo commandBufferInfo;
+	commandBufferInfo.setLevel(vk::CommandBufferLevel::ePrimary);
+	commandBufferInfo.setCommandPool(graphicsCommandPool);
+	commandBufferInfo.setCommandBufferCount(1);
+	
+	commandBuffers = logicalDevice.allocateCommandBuffers(commandBufferInfo);
+}
+
+void VulkanRenderer::createDescriptorPool() {
+	std::vector<vk::DescriptorPoolSize> poolSizes;
+	
+	vk::DescriptorPoolSize size;
+	size.setType(vk::DescriptorType::eUniformBuffer);
+	size.setDescriptorCount(32);
+	poolSizes.push_back(size);
+	
+	size.setType(vk::DescriptorType::eUniformBufferDynamic);
+	size.setDescriptorCount(32);
+	poolSizes.push_back(size);
+	
+	size.setType(vk::DescriptorType::eSampler);
+	size.setDescriptorCount(32);
+	poolSizes.push_back(size);
+	
+	size.setType(vk::DescriptorType::eSampledImage);
+	size.setDescriptorCount(32);
+	poolSizes.push_back(size);
+	
+	size.setType(vk::DescriptorType::eStorageImage);
+	size.setDescriptorCount(32);
+	poolSizes.push_back(size);
+	
+	size.setType(vk::DescriptorType::eStorageBuffer);
+	size.setDescriptorCount(32);
+	poolSizes.push_back(size);
+	
+	size.setType(vk::DescriptorType::eStorageBufferDynamic);
+	size.setDescriptorCount(32);
+	poolSizes.push_back(size);
+	
+	vk::DescriptorPoolCreateInfo info;
+	info.setPPoolSizes(poolSizes.data());
+	info.setPoolSizeCount(static_cast<uint32_t>(poolSizes.size()));
+	info.setMaxSets(32);
+	
+	descriptorPool = logicalDevice.createDescriptorPool(info);
+}
+
+
 
 
 
