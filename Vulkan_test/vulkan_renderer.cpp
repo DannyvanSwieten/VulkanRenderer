@@ -33,6 +33,7 @@ VulkanRenderer::VulkanRenderer(void* nativeWindowHandle): nativeWindowHandle(nat
 	createLogicalDeviceAndPresentQueue();
 	createSwapChain();
 	createCommandPool();
+	createDescriptorPool();
 }
 
 void VulkanRenderer::chooseBestDevice(const std::vector<vk::PhysicalDevice>& devices) {
@@ -255,7 +256,7 @@ void VulkanRenderer::createSwapChain() {
 	// Create depthbuffer
 	vk::ImageCreateInfo depthBufferCreateInfo;
 	depthBufferCreateInfo.setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment);
-	depthBufferCreateInfo.setFormat(vk::Format::eD16Unorm);
+	depthBufferCreateInfo.setFormat(vk::Format::eD24UnormS8Uint);
 	depthBufferCreateInfo.setImageType(vk::ImageType::e2D);
 	const auto& windowSize = surfaceCababilities.currentExtent;
 	depthBufferCreateInfo.setExtent(vk::Extent3D{windowSize.width, windowSize.height, 1});
@@ -285,7 +286,7 @@ void VulkanRenderer::createSwapChain() {
 	
 	vk::ImageViewCreateInfo viewInfo;
 	viewInfo.setImage(depthBuffer);
-	viewInfo.setFormat(vk::Format::eD16Unorm);
+	viewInfo.setFormat(vk::Format::eD24UnormS8Uint);
 	viewInfo.setViewType(vk::ImageViewType::e2D);
 	viewInfo.setComponents(vk::ComponentMapping());
 	viewInfo.setSubresourceRange(subResource);
@@ -347,8 +348,73 @@ void VulkanRenderer::createDescriptorPool() {
 	descriptorPool = logicalDevice.createDescriptorPool(info);
 }
 
+resource_handle_t VulkanRenderer::createShader(const ShaderStageDescriptor& descriptor)
+{
+	// give source to SPIR-V compiler which outputs a uint32*
+	std::vector<uint32_t> code;
+	return createShaderModuleFromSpirV(code);
+}
 
+resource_handle_t VulkanRenderer::createShaderModuleFromSpirV(const std::vector<uint32_t> instructions)
+{
+	vk::ShaderModuleCreateInfo info;
+	info.setCodeSize(instructions.size()).
+	setPCode(instructions.data());
+	
+	auto module = logicalDevice.createShaderModule(info);
+	if(module)
+		shaderModules.emplace_back(module);
+	
+	return shaderModules.size() - 1;
+}
 
+vk::VertexInputAttributeDescription VulkanRenderer::createAttributeDescription(const VertexAttributeDescriptor &attribute)
+{
+	vk::VertexInputAttributeDescription d;
+	d.setOffset(attribute.offset);
+	d.setLocation(attribute.location);
+	
+	switch(attribute.type)
+	{
+		case DataType::FLOAT_32:
+		{
+			switch(attribute.numElements)
+			{
+				case 1: d.setFormat(vk::Format::eR32Sfloat); break;
+				case 2: d.setFormat(vk::Format::eR32G32Sfloat); break;
+				case 3: d.setFormat(vk::Format::eR32G32B32Sfloat); break;
+				case 4: d.setFormat(vk::Format::eR32G32B32A32Sfloat); break;
+			}
+		}
+			
+		case DataType::INT_32:
+		{
+			switch(attribute.numElements)
+			{
+				case 1: d.setFormat(vk::Format::eR32Sint); break;
+				case 2: d.setFormat(vk::Format::eR32G32Sint); break;
+				case 3: d.setFormat(vk::Format::eR32G32B32Sint); break;
+				case 4: d.setFormat(vk::Format::eR32G32B32A32Sint); break;
+			}
+		}
+			
+		default: break;
+	}
+	
+	return d;
+}
 
+resource_handle_t VulkanRenderer::createRenderPipeline(const RenderPipelineDescriptor &descriptor)
+{
+	vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
+	std::vector<vk::VertexInputAttributeDescription> vkAttributes;
+	for(const auto& attribute: descriptor.vertexAttributeDescriptors)
+		vkAttributes.emplace_back(createAttributeDescription(attribute));
+
+	vertexInputInfo.setPVertexAttributeDescriptions(vkAttributes.data()).
+	setVertexAttributeDescriptionCount(vkAttributes.size());
+	
+	return 0;
+}
 
 

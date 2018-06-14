@@ -6,7 +6,7 @@
 //  Copyright © 2018 Danny. All rights reserved.
 //
 
-#import "MetalView.h"
+#import "metal_view.h"
 
 #import <QuartzCore/CAMetalLayer.h>
 

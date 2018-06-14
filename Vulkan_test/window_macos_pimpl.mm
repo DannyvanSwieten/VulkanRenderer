@@ -6,7 +6,7 @@
 //  Copyright © 2018 Danny. All rights reserved.
 //
 
-#include "MetalView.h"
+#include "metal_view.h"
 
 #include "window.hpp"
 

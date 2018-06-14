@@ -9,6 +9,7 @@
 #pragma once
 
 #include <vulkan/vulkan.hpp>
+#include "resource_descriptors.hpp"
 
 class VulkanRenderer {
 public:
@@ -26,35 +27,61 @@ private:
 	void createCommandPool();
 	void createDescriptorPool();
 	
+	vk::VertexInputAttributeDescription createAttributeDescription(const VertexAttributeDescriptor&);
+	
+public:
+	
+	resource_handle_t createShader(const ShaderStageDescriptor&);
+	resource_handle_t createShaderModuleFromSpirV(const std::vector<uint32_t> instructions);
+	
+	resource_handle_t createRenderPipeline(const RenderPipelineDescriptor& );
+	
 private:
 	
+	// An instance and entrypoint to the API
 	vk::Instance instance;
+	
+	// The physical (hardware) device we connect to.
 	vk::PhysicalDevice physicalDevice;
+	// The software wrapper around the physical device.
 	vk::Device logicalDevice;
+	
+	// The queue we use to present images to the screen.
 	vk::Queue presentQueue;
+	
+	// The information used to create a pipeline on the gpu that's ready to render.
 	vk::GraphicsPipelineCreateInfo pipelineState;
+	// The pipeline itself
 	vk::Pipeline pipeline;
+	
+	// If the context is given a native window handle than these are
 	vk::SurfaceKHR surface;
 	vk::SurfaceCapabilitiesKHR surfaceCababilities;
 	std::vector<vk::SurfaceFormatKHR> supportedSurfaceFormats;
 	std::vector<vk::PresentModeKHR> supportedPresentModes;
 	
+	// The swapchain and it's images and imageviews
 	vk::SwapchainKHR swapChain;
+	vk::SurfaceFormatKHR swapChainFormat;
+	vk::PresentModeKHR swapChainPresentMode;
 	std::vector<vk::Image> swapChainImages;
 	std::vector<vk::ImageView> swapChainImageViews;
 	vk::Image depthBuffer;
 	vk::ImageView depthBufferView;
+	
+	// Memory to back up the depth buffer
 	vk::DeviceMemory depthBufferDeviceMemory;
-	vk::SurfaceFormatKHR swapChainFormat;
-	vk::PresentModeKHR swapChainPresentMode;
 	
 	void* nativeWindowHandle = nullptr;
 	
 	uint32_t graphicsQueueIndex = 0;
 	uint32_t presentQueueIndex = 0;
 	
+	// The commandpool from which we allocate commandbuffers.
 	vk::CommandPool graphicsCommandPool;
 	std::vector<vk::CommandBuffer> commandBuffers;
 	
 	vk::DescriptorPool descriptorPool;
+	
+	std::vector<vk::ShaderModule> shaderModules;
 };

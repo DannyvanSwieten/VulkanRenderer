@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		305B853C205A949800DE9F0A /* vulkan_renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 305B853A205A949800DE9F0A /* vulkan_renderer.cpp */; };
 		307A4AF6205BE96A00E14D0C /* window_macos_pimpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 307A4AF4205BE96A00E14D0C /* window_macos_pimpl.mm */; };
-		308C8AFB205BE59D006C650A /* MetalView.m in Sources */ = {isa = PBXBuildFile; fileRef = 308C8AFA205BE59D006C650A /* MetalView.m */; };
+		30C16AA220D2B800005A0469 /* metal_view.m in Sources */ = {isa = PBXBuildFile; fileRef = 30C16AA020D2B800005A0469 /* metal_view.m */; };
 		30D04CB820446D850075FCBF /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30D04CB720446D850075FCBF /* main.cpp */; };
 /* End PBXBuildFile section */
 
@@ -30,8 +30,9 @@
 		305B853B205A949800DE9F0A /* vulkan_renderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = vulkan_renderer.hpp; sourceTree = "<group>"; };
 		307A4AF4205BE96A00E14D0C /* window_macos_pimpl.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = window_macos_pimpl.mm; sourceTree = "<group>"; };
 		307A4AF5205BE96A00E14D0C /* window.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = window.hpp; sourceTree = "<group>"; };
-		308C8AF9205BE59D006C650A /* MetalView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MetalView.h; sourceTree = "<group>"; };
-		308C8AFA205BE59D006C650A /* MetalView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MetalView.m; sourceTree = "<group>"; };
+		30C16A9F20D2B800005A0469 /* metal_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metal_view.h; sourceTree = "<group>"; };
+		30C16AA020D2B800005A0469 /* metal_view.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = metal_view.m; sourceTree = "<group>"; };
+		30C16AA120D2B800005A0469 /* resource_descriptors.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = resource_descriptors.hpp; sourceTree = "<group>"; };
 		30D04CB420446D850075FCBF /* Vulkan_test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Vulkan_test; sourceTree = BUILT_PRODUCTS_DIR; };
 		30D04CB720446D850075FCBF /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -68,10 +69,11 @@
 			isa = PBXGroup;
 			children = (
 				30D04CB720446D850075FCBF /* main.cpp */,
+				30C16AA120D2B800005A0469 /* resource_descriptors.hpp */,
+				30C16A9F20D2B800005A0469 /* metal_view.h */,
+				30C16AA020D2B800005A0469 /* metal_view.m */,
 				305B853A205A949800DE9F0A /* vulkan_renderer.cpp */,
 				305B853B205A949800DE9F0A /* vulkan_renderer.hpp */,
-				308C8AFA205BE59D006C650A /* MetalView.m */,
-				308C8AF9205BE59D006C650A /* MetalView.h */,
 				307A4AF4205BE96A00E14D0C /* window_macos_pimpl.mm */,
 				307A4AF5205BE96A00E14D0C /* window.hpp */,
 				30D04CB520446D850075FCBF /* Products */,
@@ -112,7 +114,7 @@
 		30D04CAC20446D850075FCBF /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0920;
+				LastUpgradeCheck = 0940;
 				ORGANIZATIONNAME = Danny;
 				TargetAttributes = {
 					30D04CB320446D850075FCBF = {
@@ -143,8 +145,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				30C16AA220D2B800005A0469 /* metal_view.m in Sources */,
 				30D04CB820446D850075FCBF /* main.cpp in Sources */,
-				308C8AFB205BE59D006C650A /* MetalView.m in Sources */,
 				305B853C205A949800DE9F0A /* vulkan_renderer.cpp in Sources */,
 				307A4AF6205BE96A00E14D0C /* window_macos_pimpl.mm in Sources */,
 			);
@@ -167,6 +169,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -174,6 +177,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -222,6 +226,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -229,6 +234,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
