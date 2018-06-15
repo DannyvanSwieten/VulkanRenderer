@@ -412,7 +412,20 @@ resource_handle_t VulkanRenderer::createRenderPipeline(const RenderPipelineDescr
 		vkAttributes.emplace_back(createAttributeDescription(attribute));
 
 	vertexInputInfo.setPVertexAttributeDescriptions(vkAttributes.data()).
-	setVertexAttributeDescriptionCount(vkAttributes.size());
+	setVertexAttributeDescriptionCount(static_cast<uint32_t>(vkAttributes.size()));
+	
+	vk::PipelineInputAssemblyStateCreateInfo assemblyInfo;
+	if(descriptor.primitiveRestart)
+		assemblyInfo.setPrimitiveRestartEnable(true);
+	
+	switch(descriptor.topology)
+	{
+		case PrimitiveTopology::POINTS: assemblyInfo.setTopology(vk::PrimitiveTopology::ePointList); break;
+		case PrimitiveTopology::LINES: assemblyInfo.setTopology(vk::PrimitiveTopology::eLineList); break;
+		case PrimitiveTopology::TRIANGLES: assemblyInfo.setTopology(vk::PrimitiveTopology::eTriangleList); break;
+	}
+	
+	vk::PipelineLayoutCreateInfo pipelineInfo;
 	
 	return 0;
 }

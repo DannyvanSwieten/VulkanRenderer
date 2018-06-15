@@ -79,6 +79,13 @@ enum class TextureUsage
 	RENDER_TARGET
 };
 
+enum class PrimitiveTopology
+{
+	TRIANGLES,
+	LINES,
+	POINTS
+};
+
 struct TextureDescriptor
 {
 	uint32_t width    = 0;
@@ -145,6 +152,8 @@ struct RenderPipelineDescriptor
 	resource_handle_t fragmentShader 	= null_handle;
 	
 	std::vector<VertexAttributeDescriptor> vertexAttributeDescriptors;
+	PrimitiveTopology topology;
+	uint32_t primitiveRestart = 0;
 };
 
 struct NodeResourceDescriptor
