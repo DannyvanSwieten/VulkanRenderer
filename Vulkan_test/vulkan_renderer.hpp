@@ -34,6 +34,7 @@ public:
 	resource_handle_t createShader(const ShaderStageDescriptor&);
 	resource_handle_t createShaderModuleFromSpirV(const std::vector<uint32_t> instructions);
 	
+	resource_handle_t createRenderpass(const RenderPassDescriptor&);
 	resource_handle_t createRenderPipeline(const RenderPipelineDescriptor& );
 	
 private:
@@ -66,8 +67,11 @@ private:
 	vk::PresentModeKHR swapChainPresentMode;
 	std::vector<vk::Image> swapChainImages;
 	std::vector<vk::ImageView> swapChainImageViews;
+	std::vector<vk::Framebuffer> swapChainFrameBuffers;
 	vk::Image depthBuffer;
 	vk::ImageView depthBufferView;
+	
+	vk::RenderPass renderPass;
 	
 	// Memory to back up the depth buffer
 	vk::DeviceMemory depthBufferDeviceMemory;
@@ -84,4 +88,5 @@ private:
 	vk::DescriptorPool descriptorPool;
 	
 	std::vector<vk::ShaderModule> shaderModules;
+	std::vector<vk::RenderPass> renderPasses;
 };

@@ -292,6 +292,45 @@ void VulkanRenderer::createSwapChain() {
 	viewInfo.setSubresourceRange(subResource);
 
 	depthBufferView = logicalDevice.createImageView(viewInfo);
+	
+	vk::AttachmentDescription attachmentDescription;
+	attachmentDescription.setLoadOp(vk::AttachmentLoadOp::eClear);
+	attachmentDescription.setStoreOp(vk::AttachmentStoreOp::eStore);
+	attachmentDescription.setSamples(vk::SampleCountFlagBits::e1);
+	attachmentDescription.setInitialLayout(vk::ImageLayout::eUndefined);
+	attachmentDescription.setFinalLayout(vk::ImageLayout::ePresentSrcKHR);
+	
+	vk::AttachmentReference attachmentRef;
+	attachmentRef.setAttachment(0);
+	attachmentRef.setLayout(vk::ImageLayout::eColorAttachmentOptimal);
+	
+	vk::SubpassDescription subDescription;
+	subDescription.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics);
+	subDescription.setColorAttachmentCount(1);
+	subDescription.setPColorAttachments(&attachmentRef);
+	
+	vk::RenderPassCreateInfo rpCreateInfo;
+	rpCreateInfo.setSubpassCount(1);
+	rpCreateInfo.setPSubpasses(&subDescription);
+	rpCreateInfo.setAttachmentCount(1);
+	rpCreateInfo.setPAttachments(&attachmentDescription);
+	
+	renderPass = logicalDevice.createRenderPass(rpCreateInfo);
+	
+	for(auto i = 0; i < swapChainImages.size(); ++i)
+	{
+		vk::FramebufferCreateInfo info;
+		info.setLayers(1);
+		info.setWidth(surfaceCababilities.currentExtent.width);
+		info.setHeight(surfaceCababilities.currentExtent.height);
+		info.setRenderPass(renderPass);
+		info.setPAttachments(&swapChainImageViews[i]);
+		info.setAttachmentCount(1);
+		
+		swapChainFrameBuffers.emplace_back(logicalDevice.createFramebuffer(info));
+	}
+	
+	
 }
 
 void VulkanRenderer::createCommandPool() { 
@@ -358,8 +397,8 @@ resource_handle_t VulkanRenderer::createShader(const ShaderStageDescriptor& desc
 resource_handle_t VulkanRenderer::createShaderModuleFromSpirV(const std::vector<uint32_t> instructions)
 {
 	vk::ShaderModuleCreateInfo info;
-	info.setCodeSize(instructions.size()).
-	setPCode(instructions.data());
+	info.setCodeSize(instructions.size());
+	info.setPCode(instructions.data());
 	
 	auto module = logicalDevice.createShaderModule(info);
 	if(module)
@@ -425,9 +464,79 @@ resource_handle_t VulkanRenderer::createRenderPipeline(const RenderPipelineDescr
 		case PrimitiveTopology::TRIANGLES: assemblyInfo.setTopology(vk::PrimitiveTopology::eTriangleList); break;
 	}
 	
+	vk::DescriptorSetLayoutBinding layoutBinding;
+	layoutBinding.setDescriptorType(vk::DescriptorType::eStorageBuffer);
+	layoutBinding.setBinding(0);
+	
+	vk::DescriptorSetLayoutCreateInfo layoutInfo;
+	
 	vk::PipelineLayoutCreateInfo pipelineInfo;
 	
 	return 0;
 }
 
-
+resource_handle_t VulkanRenderer::createRenderpass(const RenderPassDescriptor& descriptor)
+{
+	std::vector<vk::AttachmentDescription> vkAttachmentDescriptors;
+	std::vector<vk::AttachmentReference> vkAttachmentRefs;
+	uint32_t index = 0;
+	for(const auto& attachment: descriptor.colourAttachments)
+	{
+		vk::AttachmentDescription desc;
+		desc.setInitialLayout(vk::ImageLayout::eUndefined);
+		desc.setFinalLayout(vk::ImageLayout::eColorAttachmentOptimal);
+		desc.setSamples(vk::SampleCountFlagBits::e1);
+		
+		switch(attachment.loadAction)
+		{
+			case LoadAction::LOAD: desc.setLoadOp(vk::AttachmentLoadOp::eLoad);
+			case LoadAction::CLEAR: desc.setLoadOp(vk::AttachmentLoadOp::eClear);
+			default: desc.setLoadOp(vk::AttachmentLoadOp::eDontCare);
+		}
+		
+		vkAttachmentDescriptors.emplace_back(desc);
+		
+		vk::AttachmentReference ref;
+		ref.setAttachment(index);
+		ref.setLayout(vk::ImageLayout::eColorAttachmentOptimal);
+		vkAttachmentRefs.emplace_back(ref);
+		
+		index++;
+	}
+	
+	vk::SubpassDescription subpass;
+	subpass.setColorAttachmentCount(static_cast<uint32_t>(descriptor.colourAttachments.size()));
+	subpass.setPColorAttachments(vkAttachmentRefs.data());
+	subpass.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics);
+	
+	if(descriptor.depthAttachment)
+	{
+		vk::AttachmentDescription desc;
+		desc.setInitialLayout(vk::ImageLayout::eUndefined);
+		desc.setFinalLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
+		desc.setLoadOp(vk::AttachmentLoadOp::eClear);
+		
+		vk::AttachmentReference depthRef;
+		depthRef.setLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
+		depthRef.setAttachment(index);
+		
+		subpass.setPDepthStencilAttachment(&depthRef);
+		subpass.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics);
+		
+		vkAttachmentDescriptors.emplace_back(desc);
+		vkAttachmentRefs.emplace_back(depthRef);
+	}
+	
+	vk::RenderPassCreateInfo info;
+	info.setAttachmentCount(static_cast<uint32_t>(vkAttachmentDescriptors.size()));
+	info.setPAttachments(vkAttachmentDescriptors.data());
+	info.setSubpassCount(1);
+	info.setPSubpasses(&subpass);
+	
+	auto renderpass = logicalDevice.createRenderPass(info);
+	if(!renderpass)
+		return -1;
+	
+	renderPasses.emplace_back(renderpass);
+	return renderPasses.size() - 1;
+}

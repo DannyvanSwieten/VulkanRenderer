@@ -12,6 +12,11 @@
 #include <string>
 #include <vector>
 
+#include <experimental/optional>
+
+
+using std::experimental::optional;
+
 using resource_handle_t = std::size_t;
 constexpr resource_handle_t null_handle = -1;
 
@@ -119,7 +124,7 @@ struct RenderPassDepthAttachmentDescriptor: public RenderPassAttachmentDescripto
 struct RenderPassDescriptor
 {
 	std::vector<RenderPassColourAttachmentDescriptor> colourAttachments;
-	RenderPassDepthAttachmentDescriptor depthAttachment;
+	optional<RenderPassDepthAttachmentDescriptor> depthAttachment;
 };
 
 struct ShaderStageDescriptor
@@ -150,6 +155,8 @@ struct RenderPipelineDescriptor
 {
 	resource_handle_t vertexShader 		= null_handle;
 	resource_handle_t fragmentShader 	= null_handle;
+	
+	resource_handle_t renderPass		= null_handle;
 	
 	std::vector<VertexAttributeDescriptor> vertexAttributeDescriptors;
 	PrimitiveTopology topology;
