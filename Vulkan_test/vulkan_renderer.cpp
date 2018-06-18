@@ -469,8 +469,17 @@ resource_handle_t VulkanRenderer::createRenderPipeline(const RenderPipelineDescr
 	layoutBinding.setBinding(0);
 	
 	vk::DescriptorSetLayoutCreateInfo layoutInfo;
+	layoutInfo.setPBindings(&layoutBinding);
+	layoutInfo.setBindingCount(0);
+	
+	auto descriptorSetLayout = logicalDevice.createDescriptorSetLayout(layoutInfo);
 	
 	vk::PipelineLayoutCreateInfo pipelineInfo;
+	pipelineInfo.setPSetLayouts(&descriptorSetLayout);
+	pipelineInfo.setSetLayoutCount(1);
+	
+	auto pipelineLayout = logicalDevice.createPipelineLayout(pipelineInfo);
+
 	
 	return 0;
 }
