@@ -31,7 +31,7 @@ private:
 	
 public:
 	
-	resource_handle_t createShader(const ShaderStageDescriptor&);
+	resource_handle_t createShaderModule(const std::string& source);
 	resource_handle_t createShaderModuleFromSpirV(const std::vector<uint32_t> instructions);
 	
 	resource_handle_t createRenderpass(const RenderPassDescriptor&);

@@ -387,7 +387,7 @@ void VulkanRenderer::createDescriptorPool() {
 	descriptorPool = logicalDevice.createDescriptorPool(info);
 }
 
-resource_handle_t VulkanRenderer::createShader(const ShaderStageDescriptor& descriptor)
+resource_handle_t VulkanRenderer::createShaderModule(const std::string& descriptor)
 {
 	// give source to SPIR-V compiler which outputs a uint32*
 	std::vector<uint32_t> code;
@@ -474,12 +474,27 @@ resource_handle_t VulkanRenderer::createRenderPipeline(const RenderPipelineDescr
 	
 	auto descriptorSetLayout = logicalDevice.createDescriptorSetLayout(layoutInfo);
 	
-	vk::PipelineLayoutCreateInfo pipelineInfo;
-	pipelineInfo.setPSetLayouts(&descriptorSetLayout);
-	pipelineInfo.setSetLayoutCount(1);
+	vk::PipelineLayoutCreateInfo pipelineLayoutInfo;
+	pipelineLayoutInfo.setPSetLayouts(&descriptorSetLayout);
+	pipelineLayoutInfo.setSetLayoutCount(1);
 	
-	auto pipelineLayout = logicalDevice.createPipelineLayout(pipelineInfo);
-
+	auto pipelineLayout = logicalDevice.createPipelineLayout(pipelineLayoutInfo);
+	
+	vk::PipelineViewportStateCreateInfo vpInfo;
+	
+	std::vector<vk::Viewport> viewports;
+	for(const auto& vp: descriptor.viewPorts)
+		viewports.emplace_back(vp.x, vp.y, vp.width, vp.height, vp.minDepth, vp.maxDepth);
+	
+	vpInfo.setViewportCount(static_cast<uint32_t>(viewports.size()));
+	vpInfo.setPViewports(viewports.data());
+	
+	vk::GraphicsPipelineCreateInfo pipelineInfo;
+	pipelineInfo.setLayout(pipelineLayout);
+	auto& rp = renderPasses.at(descriptor.renderPass);
+	pipelineInfo.setRenderPass(rp);
+	pipelineInfo.setSubpass(0);
+	pipelineInfo.setPViewportState(&vpInfo);
 	
 	return 0;
 }

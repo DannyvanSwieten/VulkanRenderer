@@ -139,8 +139,9 @@ struct ShaderStageDescriptor
 		COMPUTE
 	};
 	
-	std::string source;
+	std::string entryPoint;
 	Type type;
+	resource_handle_t module;
 };
 
 struct VertexAttributeDescriptor
@@ -151,16 +152,27 @@ struct VertexAttributeDescriptor
 	uint32_t location 	= 0;
 };
 
+struct ViewPort
+{
+	float x			= 0;
+	float y			= 0;
+	
+	float width 	= 0;
+	float height 	= 0;
+	
+	float minDepth	= 0;
+	float maxDepth	= 1;
+};
+
 struct RenderPipelineDescriptor
 {
-	resource_handle_t vertexShader 		= null_handle;
-	resource_handle_t fragmentShader 	= null_handle;
-	
-	resource_handle_t renderPass		= null_handle;
-	
+	std::vector<ViewPort> viewPorts;
+	std::vector<ShaderStageDescriptor> shaderStages;
 	std::vector<VertexAttributeDescriptor> vertexAttributeDescriptors;
 	PrimitiveTopology topology;
 	uint32_t primitiveRestart = 0;
+	
+	resource_handle_t renderPass		= null_handle;
 };
 
 struct NodeResourceDescriptor
