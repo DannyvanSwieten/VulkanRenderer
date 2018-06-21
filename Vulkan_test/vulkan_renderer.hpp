@@ -13,14 +13,14 @@
 
 class VulkanRenderer {
 public:
-	VulkanRenderer(void* nativeWindowHandle = nullptr);
+	VulkanRenderer(const DeviceRequirements& reqs);
 
 private:
 	
-	void chooseBestDevice(const std::vector<vk::PhysicalDevice>&);
-	void createPlatformSpecificSurface();
-	bool checkSwapChainCompatibilityForDevice(const vk::PhysicalDevice& device);
-	void createLogicalDeviceAndPresentQueue();
+	void chooseBestDevice(const std::vector<vk::PhysicalDevice>&, const DeviceRequirements& reqs);
+	void createPlatformSpecificSurface(void* nativeWindowHandle);
+	bool checkSwapChainCompatibilityForDevice(const vk::PhysicalDevice& device, const DeviceRequirements& reqs);
+	void createLogicalDeviceAndPresentQueue(const DeviceRequirements& reqs);
 	void chooseSurfaceFormatForSwapChain();
 	void choosePresentModeForSwapChain();
 	void createSwapChain();
@@ -75,8 +75,6 @@ private:
 	
 	// Memory to back up the depth buffer
 	vk::DeviceMemory depthBufferDeviceMemory;
-	
-	void* nativeWindowHandle = nullptr;
 	
 	uint32_t graphicsQueueIndex = 0;
 	uint32_t presentQueueIndex = 0;

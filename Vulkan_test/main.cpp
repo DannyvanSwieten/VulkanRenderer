@@ -12,7 +12,12 @@
 int main(int argc, const char * argv[]) {
 	
 	Window w(800, 600);
-	VulkanRenderer renderer(w.getNativeHandle());
+	DeviceRequirements requirements;
+	requirements.graphicsQueueSupport = true;
+	requirements.swapchainSupport = true;
+	requirements.nativeWindowHandle = w.getNativeHandle();
+	
+	VulkanRenderer renderer(requirements);
 	
 	return 0;
 }

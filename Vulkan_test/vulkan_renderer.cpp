@@ -14,13 +14,19 @@
 
 #include <map>
 
-VulkanRenderer::VulkanRenderer(void* nativeWindowHandle): nativeWindowHandle(nativeWindowHandle) {
+VulkanRenderer::VulkanRenderer(const DeviceRequirements& reqs) {
 	
 	const std::vector<const char* const> validationLayers { "VK_LAYER_LUNARG_standard_validation" };
-	std::vector<const char*> requiredExtensions { "VK_KHR_surface" };
+	std::vector<const char*> requiredExtensions;
+	if(reqs.swapchainSupport)
+	{
+		requiredExtensions.emplace_back ( "VK_KHR_surface" );
+	
 #ifdef __APPLE__
 	requiredExtensions.emplace_back("VK_MVK_macos_surface");
 #endif
+		
+	}
 	
 	vk::InstanceCreateInfo info;
 	info.setPpEnabledLayerNames(validationLayers.data()).
@@ -29,28 +35,27 @@ VulkanRenderer::VulkanRenderer(void* nativeWindowHandle): nativeWindowHandle(nat
 	setEnabledExtensionCount(static_cast<uint32_t>(requiredExtensions.size()));
 	
 	instance = vk::createInstance(info);
-	chooseBestDevice(instance.enumeratePhysicalDevices());
-	createLogicalDeviceAndPresentQueue();
+	chooseBestDevice(instance.enumeratePhysicalDevices(), reqs);
+	if(reqs.graphicsQueueSupport)
+		createLogicalDeviceAndPresentQueue(reqs);
+	
 	createSwapChain();
 	createCommandPool();
 	createDescriptorPool();
 }
 
-void VulkanRenderer::chooseBestDevice(const std::vector<vk::PhysicalDevice>& devices) {
+void VulkanRenderer::chooseBestDevice(const std::vector<vk::PhysicalDevice>& devices, const DeviceRequirements& reqs) {
 	
 	std::vector<vk::PhysicalDevice> suitableDevices;
 	
 	// Filter out devices that don't have platform specific surface extension;
 	
-	if(nativeWindowHandle) {
-		createPlatformSpecificSurface();
-		
+	if(reqs.swapchainSupport) {
 		for(const auto& device: devices) {
-			if(checkSwapChainCompatibilityForDevice(device)) {
+			if(checkSwapChainCompatibilityForDevice(device, reqs)) {
 				suitableDevices.emplace_back(device);
 			}
 		}
-
 	} else {
 		// Filter out devices that don't have a graphics queue
 		for(const auto& device: devices) {
@@ -61,6 +66,9 @@ void VulkanRenderer::chooseBestDevice(const std::vector<vk::PhysicalDevice>& dev
 			}
 		}
 	}
+	
+	if(suitableDevices.empty())
+		return;
 	
 	size_t maxScore = 0;
 	size_t deviceId = 0;
@@ -87,7 +95,7 @@ void VulkanRenderer::chooseBestDevice(const std::vector<vk::PhysicalDevice>& dev
 	physicalDevice = suitableDevices[winner];
 }
 
-void VulkanRenderer::createPlatformSpecificSurface() {
+void VulkanRenderer::createPlatformSpecificSurface(void* nativeWindowHandle) {
 #ifdef __APPLE__
 	vk::MacOSSurfaceCreateInfoMVK surfaceCreateInfo;
 	surfaceCreateInfo.pView = nativeWindowHandle;
@@ -95,7 +103,7 @@ void VulkanRenderer::createPlatformSpecificSurface() {
 #endif
 }
 
-void VulkanRenderer::createLogicalDeviceAndPresentQueue() {
+void VulkanRenderer::createLogicalDeviceAndPresentQueue(const DeviceRequirements& reqs) {
 	
 	auto layers 	= physicalDevice.enumerateDeviceLayerProperties();
 	auto features 	= physicalDevice.getFeatures();
@@ -108,7 +116,7 @@ void VulkanRenderer::createLogicalDeviceAndPresentQueue() {
 			graphicsQueueIndex = index;
 		}
 		
-		if(surface) {
+		if(reqs.swapchainSupport) {
 			vk::Bool32 presentSupportForSurface = false;
 			physicalDevice.getSurfaceSupportKHR(index, surface, &presentSupportForSurface);
 			if(presentSupportForSurface)
@@ -152,7 +160,7 @@ void VulkanRenderer::createLogicalDeviceAndPresentQueue() {
 	}
 }
 
-bool VulkanRenderer::checkSwapChainCompatibilityForDevice(const vk::PhysicalDevice &device) { 
+bool VulkanRenderer::checkSwapChainCompatibilityForDevice(const vk::PhysicalDevice &device, const DeviceRequirements& reqs) {
 
 	std::string surfaceExtension;
 #ifdef __APPLE__
@@ -168,6 +176,9 @@ bool VulkanRenderer::checkSwapChainCompatibilityForDevice(const vk::PhysicalDevi
 	}
 	
 	if(compatible) {
+		
+		createPlatformSpecificSurface(reqs.nativeWindowHandle);
+		
 		uint32_t queueIndex = 0;
 		for(auto& property: device.getQueueFamilyProperties()) {
 			if(property.queueFlags & vk::QueueFlagBits::eGraphics && property.queueCount > 0) {
@@ -215,7 +226,7 @@ void VulkanRenderer::choosePresentModeForSwapChain() {
 	swapChainPresentMode = mode;
 }
 
-void VulkanRenderer::createSwapChain() { 
+void VulkanRenderer::createSwapChain() {
 	vk::SwapchainCreateInfoKHR swapChainInfo;
 	swapChainInfo.setSurface(surface);
 	swapChainInfo.setImageFormat(swapChainFormat.format);
@@ -233,11 +244,6 @@ void VulkanRenderer::createSwapChain() {
 	for(const auto& image: swapChainImages) {
 		
 		vk::ComponentMapping mapping;
-		
-		if(swapChainFormat.format == vk::Format::eB8G8R8A8Unorm) {
-			mapping.setR(vk::ComponentSwizzle::eB);
-			mapping.setB(vk::ComponentSwizzle::eR);
-		}
 		
 		vk::ImageSubresourceRange subResource;
 		subResource.setAspectMask(vk::ImageAspectFlagBits::eColor);
@@ -299,6 +305,7 @@ void VulkanRenderer::createSwapChain() {
 	attachmentDescription.setSamples(vk::SampleCountFlagBits::e1);
 	attachmentDescription.setInitialLayout(vk::ImageLayout::eUndefined);
 	attachmentDescription.setFinalLayout(vk::ImageLayout::ePresentSrcKHR);
+	attachmentDescription.setFormat(vk::Format::eB8G8R8A8Unorm);
 	
 	vk::AttachmentReference attachmentRef;
 	attachmentRef.setAttachment(0);
@@ -489,12 +496,46 @@ resource_handle_t VulkanRenderer::createRenderPipeline(const RenderPipelineDescr
 	vpInfo.setViewportCount(static_cast<uint32_t>(viewports.size()));
 	vpInfo.setPViewports(viewports.data());
 	
+	vk::ClearDepthStencilValue clearDepth;
+	clearDepth.setDepth(0);
+	clearDepth.setStencil(0);
+	
+	vk::PipelineDepthStencilStateCreateInfo depthInfo;
+	depthInfo.setDepthTestEnable(descriptor.depthStencilState.test);
+	depthInfo.setDepthWriteEnable(descriptor.depthStencilState.write);
+	
+	std::vector<vk::PipelineShaderStageCreateInfo> stages;
+	for(const auto& stage: descriptor.shaderStages)
+	{
+		vk::PipelineShaderStageCreateInfo stageInfo;
+		stageInfo.setModule(shaderModules[stage.module]);
+		stageInfo.setPName(stage.entryPoint.c_str());
+		
+		switch(stage.type)
+		{
+			case ShaderStageDescriptor::Type::VERTEX: stageInfo.setStage(vk::ShaderStageFlagBits::eVertex); break;
+			case ShaderStageDescriptor::Type::FRAGMENT: stageInfo.setStage(vk::ShaderStageFlagBits::eFragment); break;
+			case ShaderStageDescriptor::Type::GEOMETRY: stageInfo.setStage(vk::ShaderStageFlagBits::eGeometry); break;
+			case ShaderStageDescriptor::Type::TESSELATION_EVALUATION: stageInfo.setStage(vk::ShaderStageFlagBits::eTessellationEvaluation); break;
+			case ShaderStageDescriptor::Type::TESSELLATION_CONTROL: stageInfo.setStage(vk::ShaderStageFlagBits::eTessellationControl); break;
+			case ShaderStageDescriptor::Type::COMPUTE: stageInfo.setStage(vk::ShaderStageFlagBits::eCompute); break;
+		}
+	}
+	
+	vk::PipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
+	
 	vk::GraphicsPipelineCreateInfo pipelineInfo;
 	pipelineInfo.setLayout(pipelineLayout);
 	auto& rp = renderPasses.at(descriptor.renderPass);
 	pipelineInfo.setRenderPass(rp);
 	pipelineInfo.setSubpass(0);
 	pipelineInfo.setPViewportState(&vpInfo);
+	pipelineInfo.setPDepthStencilState(&depthInfo);
+	pipelineInfo.setLayout(pipelineLayout);
+	pipelineInfo.setPVertexInputState(&vertexInputInfo);
+	pipelineInfo.setPInputAssemblyState(&assemblyInfo);
+	pipelineInfo.setPStages(stages.data());
+	pipelineInfo.setStageCount(static_cast<uint32_t>(stages.size()));
 	
 	return 0;
 }

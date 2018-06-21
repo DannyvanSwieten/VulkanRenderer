@@ -20,6 +20,14 @@ using std::experimental::optional;
 using resource_handle_t = std::size_t;
 constexpr resource_handle_t null_handle = -1;
 
+struct DeviceRequirements
+{
+	bool swapchainSupport 		= false;
+	bool graphicsQueueSupport 	= false;
+	
+	void* nativeWindowHandle	= nullptr;
+};
+
 struct ClearColour
 {
 	float r;
@@ -164,11 +172,20 @@ struct ViewPort
 	float maxDepth	= 1;
 };
 
+struct DepthStencilStateDescriptor
+{
+	uint32_t write = 0;
+	uint32_t test = 0;
+	
+	LoadAction loadAction;
+};
+
 struct RenderPipelineDescriptor
 {
 	std::vector<ViewPort> viewPorts;
 	std::vector<ShaderStageDescriptor> shaderStages;
 	std::vector<VertexAttributeDescriptor> vertexAttributeDescriptors;
+	DepthStencilStateDescriptor depthStencilState;
 	PrimitiveTopology topology;
 	uint32_t primitiveRestart = 0;
 	
