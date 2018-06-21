@@ -15,6 +15,7 @@ int main(int argc, const char * argv[]) {
 	DeviceRequirements requirements;
 	requirements.graphicsQueueSupport = true;
 	requirements.swapchainSupport = true;
+	requirements.createDepthBuffer = true;
 	requirements.nativeWindowHandle = w.getNativeHandle();
 	
 	VulkanRenderer renderer(requirements);

@@ -39,7 +39,9 @@ VulkanRenderer::VulkanRenderer(const DeviceRequirements& reqs) {
 	if(reqs.graphicsQueueSupport)
 		createLogicalDeviceAndPresentQueue(reqs);
 	
-	createSwapChain();
+	if(reqs.swapchainSupport)
+		createSwapChain(reqs);
+	
 	createCommandPool();
 	createDescriptorPool();
 }
@@ -226,7 +228,7 @@ void VulkanRenderer::choosePresentModeForSwapChain() {
 	swapChainPresentMode = mode;
 }
 
-void VulkanRenderer::createSwapChain() {
+void VulkanRenderer::createSwapChain(const DeviceRequirements& reqs) {
 	vk::SwapchainCreateInfoKHR swapChainInfo;
 	swapChainInfo.setSurface(surface);
 	swapChainInfo.setImageFormat(swapChainFormat.format);
@@ -259,45 +261,48 @@ void VulkanRenderer::createSwapChain() {
 		swapChainImageViews.emplace_back(logicalDevice.createImageView(viewInfo));
 	}
 	
-	// Create depthbuffer
-	vk::ImageCreateInfo depthBufferCreateInfo;
-	depthBufferCreateInfo.setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment);
-	depthBufferCreateInfo.setFormat(vk::Format::eD24UnormS8Uint);
-	depthBufferCreateInfo.setImageType(vk::ImageType::e2D);
-	const auto& windowSize = surfaceCababilities.currentExtent;
-	depthBufferCreateInfo.setExtent(vk::Extent3D{windowSize.width, windowSize.height, 1});
-	depthBufferCreateInfo.setMipLevels(1);
-	depthBufferCreateInfo.setSamples(vk::SampleCountFlagBits::e1);
-	depthBufferCreateInfo.setArrayLayers(1);
-	depthBufferCreateInfo.setSharingMode(vk::SharingMode::eExclusive);
-	
-	depthBuffer = logicalDevice.createImage(depthBufferCreateInfo);
-	
-	// Allocate devicememory for depthbuffer.
-	auto memoryProperties = physicalDevice.getMemoryProperties();
-	const auto memoryRequirements = logicalDevice.getImageMemoryRequirements(depthBuffer);
-	vk::MemoryAllocateInfo memoryInfo;
-	memoryInfo.setAllocationSize(memoryRequirements.size);
-	memoryInfo.setMemoryTypeIndex(memoryProperties.memoryTypes[0].heapIndex);
-	depthBufferDeviceMemory = logicalDevice.allocateMemory(memoryInfo);
-	
-	// Bind it to the depthbuffer
-	logicalDevice.bindImageMemory(depthBuffer, depthBufferDeviceMemory, 0);
-	
-	// Create imageview for depthbuffer
-	vk::ImageSubresourceRange subResource;
-	subResource.setAspectMask(vk::ImageAspectFlagBits::eDepth);
-	subResource.setLevelCount(1);
-	subResource.setLayerCount(1);
-	
-	vk::ImageViewCreateInfo viewInfo;
-	viewInfo.setImage(depthBuffer);
-	viewInfo.setFormat(vk::Format::eD24UnormS8Uint);
-	viewInfo.setViewType(vk::ImageViewType::e2D);
-	viewInfo.setComponents(vk::ComponentMapping());
-	viewInfo.setSubresourceRange(subResource);
+	if(reqs.createDepthBuffer)
+	{
+		// Create depthbuffer
+		vk::ImageCreateInfo depthBufferCreateInfo;
+		depthBufferCreateInfo.setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment);
+		depthBufferCreateInfo.setFormat(vk::Format::eD24UnormS8Uint);
+		depthBufferCreateInfo.setImageType(vk::ImageType::e2D);
+		const auto& windowSize = surfaceCababilities.currentExtent;
+		depthBufferCreateInfo.setExtent(vk::Extent3D{windowSize.width, windowSize.height, 1});
+		depthBufferCreateInfo.setMipLevels(1);
+		depthBufferCreateInfo.setSamples(vk::SampleCountFlagBits::e1);
+		depthBufferCreateInfo.setArrayLayers(1);
+		depthBufferCreateInfo.setSharingMode(vk::SharingMode::eExclusive);
+		
+		depthBuffer = logicalDevice.createImage(depthBufferCreateInfo);
+		
+		// Allocate devicememory for depthbuffer.
+		auto memoryProperties = physicalDevice.getMemoryProperties();
+		const auto memoryRequirements = logicalDevice.getImageMemoryRequirements(depthBuffer);
+		vk::MemoryAllocateInfo memoryInfo;
+		memoryInfo.setAllocationSize(memoryRequirements.size);
+		memoryInfo.setMemoryTypeIndex(memoryProperties.memoryTypes[0].heapIndex);
+		depthBufferDeviceMemory = logicalDevice.allocateMemory(memoryInfo);
+		
+		// Bind it to the depthbuffer
+		logicalDevice.bindImageMemory(depthBuffer, depthBufferDeviceMemory, 0);
+		
+		// Create imageview for depthbuffer
+		vk::ImageSubresourceRange subResource;
+		subResource.setAspectMask(vk::ImageAspectFlagBits::eDepth);
+		subResource.setLevelCount(1);
+		subResource.setLayerCount(1);
+		
+		vk::ImageViewCreateInfo viewInfo;
+		viewInfo.setImage(depthBuffer);
+		viewInfo.setFormat(vk::Format::eD24UnormS8Uint);
+		viewInfo.setViewType(vk::ImageViewType::e2D);
+		viewInfo.setComponents(vk::ComponentMapping());
+		viewInfo.setSubresourceRange(subResource);
 
-	depthBufferView = logicalDevice.createImageView(viewInfo);
+		depthBufferView = logicalDevice.createImageView(viewInfo);
+	}
 	
 	vk::AttachmentDescription attachmentDescription;
 	attachmentDescription.setLoadOp(vk::AttachmentLoadOp::eClear);
@@ -322,7 +327,7 @@ void VulkanRenderer::createSwapChain() {
 	rpCreateInfo.setAttachmentCount(1);
 	rpCreateInfo.setPAttachments(&attachmentDescription);
 	
-	renderPass = logicalDevice.createRenderPass(rpCreateInfo);
+	swapChainRenderPass = logicalDevice.createRenderPass(rpCreateInfo);
 	
 	for(auto i = 0; i < swapChainImages.size(); ++i)
 	{
@@ -330,14 +335,12 @@ void VulkanRenderer::createSwapChain() {
 		info.setLayers(1);
 		info.setWidth(surfaceCababilities.currentExtent.width);
 		info.setHeight(surfaceCababilities.currentExtent.height);
-		info.setRenderPass(renderPass);
+		info.setRenderPass(swapChainRenderPass);
 		info.setPAttachments(&swapChainImageViews[i]);
 		info.setAttachmentCount(1);
 		
 		swapChainFrameBuffers.emplace_back(logicalDevice.createFramebuffer(info));
 	}
-	
-	
 }
 
 void VulkanRenderer::createCommandPool() { 

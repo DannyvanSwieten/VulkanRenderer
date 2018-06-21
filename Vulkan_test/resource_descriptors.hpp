@@ -24,6 +24,7 @@ struct DeviceRequirements
 {
 	bool swapchainSupport 		= false;
 	bool graphicsQueueSupport 	= false;
+	bool createDepthBuffer		= false;
 	
 	void* nativeWindowHandle	= nullptr;
 };

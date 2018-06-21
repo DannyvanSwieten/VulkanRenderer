@@ -23,7 +23,7 @@ private:
 	void createLogicalDeviceAndPresentQueue(const DeviceRequirements& reqs);
 	void chooseSurfaceFormatForSwapChain();
 	void choosePresentModeForSwapChain();
-	void createSwapChain();
+	void createSwapChain(const DeviceRequirements&);
 	void createCommandPool();
 	void createDescriptorPool();
 	
@@ -71,7 +71,7 @@ private:
 	vk::Image depthBuffer;
 	vk::ImageView depthBufferView;
 	
-	vk::RenderPass renderPass;
+	vk::RenderPass swapChainRenderPass;
 	
 	// Memory to back up the depth buffer
 	vk::DeviceMemory depthBufferDeviceMemory;
